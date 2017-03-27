@@ -62,6 +62,8 @@ to explore the use of a serial transmitter
 capable of supporting the two most popular serial interconnects on the planet today
 (after Ethernet, that is).
 
+### Synthesis Results
+
 It is said that Spacewire implementations can be realized
 with resources on par with a UART
 (it is never mentioned *which* UART they're comparing against).

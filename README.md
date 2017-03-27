@@ -99,9 +99,12 @@ Meanwhile, XST is *functionally complete* as transmitters go,
 and is actually usable at least as a MMIO-accessible SPI engine *today* if you wanted to.
 
 Based on this analysis,
+I predict
 *complete* Spacewire implementations
 will always consume
-more resources than a comparably sized UART.
+more resources than a comparably sized UART,
+and may not represent the most efficient use of real-estate
+for wider word widths.
 
 Spacewire transmitters also proves *slower* than comparable UART-based designs.
 Based on the timing analyses provided by the `icotime` tool,

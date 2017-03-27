@@ -105,6 +105,8 @@ will always consume
 more resources than a comparably sized UART,
 and may not represent the most efficient use of real-estate
 for wider word widths.
+We won't know definitively until I finish Remex.
+A more detailed analysis can be done at that time.
 
 Spacewire transmitters also proves *slower* than comparable UART-based designs.
 Based on the timing analyses provided by the `icotime` tool,

@@ -65,7 +65,56 @@ capable of supporting the two most popular serial interconnects on the planet to
 It is said that Spacewire implementations can be realized
 with resources on par with a UART
 (it is never mentioned *which* UART they're comparing against).
-Secondarily, this core aims to confirm or falsify that claim.
+Synthesis results show this to not be generally true.
+
+We can estimate overall complexity in terms of LUTs/word size supported.
+[My Remex core consists of two parts, a receiver and a transmitter,](https://github.com/sam-falvo/remex)
+which, as I write this, are not interconnected.
+This allows me to focus easily on the transmitter logic in isolation.
+
+The transmitter cores implemented so far consume 75 LUTs of a iCE40HX4K/8K part.
+Since the shift register is only 8-bits wide,
+we can estimate complexity at 9.3 LUTs/bit shifted.
+
+The XST core synthesized to 289 LUTs, which is significantly larger area than the Remex TX engine.
+However, XST also uses a 64-bit shift register,
+which brings its complexity to 4.5 LUTs/bit shifted.
+XST is slightly better than twice as area efficient as Spacewire,
+particularly for packets of 8 bytes or less in SPI mode.
+
+For EIA-232-specific applications, you simply don't need all 64 bits.
+11 bits will suffice, supporting 8 data bits, a parity bit, and two stop bits.
+When the `xst.v` file was refit for this constraint,
+the core synthesized to only 118 LUTs.
+This equates to an area efficiency of 14.75 LUTs/bit.
+
+If we were to extrapolate complexity from Spacewire's efficiency,
+we would expect to see a complexity of 9.3 LUTs/bit &times; 11 bits = 102.3 LUTs.
+Thus, we're about 13% less area efficient than expected.
+However, we must remember that the TX engine in the Spacewire implementation *is not finished.*
+It still lacks the hardware protocol state machine!
+Meanwhile, XST is *functionally complete* as transmitters go,
+and is actually usable at least as a MMIO-accessible SPI engine *today* if you wanted to.
+
+Based on this analysis,
+*complete* Spacewire implementations
+will always consume
+more resources than a comparably sized UART.
+
+Spacewire transmitters also proves *slower* than comparable UART-based designs.
+Based on the timing analyses provided by the `icotime` tool,
+XST out-performs Remex's minimal implementation handily.
+
+The following table summarizes my results.
+
+| Parameter             | Remex TX Engine (unfinished) | XST 64-bit   | XST 11-bit     |
+|:---------------------:|:---------------:|:------------:|:--------------:|
+| Bits Configured       | 8               | 64           | 64             |
+| Max Data Rate (w/ TXC)| 25 Mbps         | 53.5 Mbps    | 53.5 Mbps      |
+| Max Data Rate         | 25 Mbps         | 107 Mbps     | 107 Mbps       |
+| Max Clock Freq.       | 75 MHz          | 107 MHz      | 107 MHz        |
+| LUTs                  | 75              | 289          | 118            |
+| LUTs/Bit              | 9.3 LUTs/bit    | 4.5 LUTs/bit | 14.75 LUTs/bit |
 
 ## What Will Become of the IEEE-1355 Remex concept?
 

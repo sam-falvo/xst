@@ -109,12 +109,17 @@ The following table summarizes my results.
 
 | Parameter             | Remex TX Engine (unfinished) | XST 64-bit   | XST 11-bit     |
 |:---------------------:|:---------------:|:------------:|:--------------:|
-| Bits Configured       | 8               | 64           | 64             |
+| Bits Configured       | 8               | 64           | 11             |
 | Max Data Rate (w/ TXC)| 25 Mbps         | 53.5 Mbps    | 53.5 Mbps      |
 | Max Data Rate         | 25 Mbps         | 107 Mbps     | 107 Mbps       |
 | Max Clock Freq.       | 75 MHz          | 107 MHz      | 107 MHz        |
 | LUTs                  | 75              | 289          | 118            |
 | LUTs/Bit              | 9.3 LUTs/bit    | 4.5 LUTs/bit | 14.75 LUTs/bit |
+| LSB-first shifting    | YES             | YES          | YES            |
+| MSB-first shifting    | NO              | YES          | YES            |
+
+Remember that LSB/MSB-first agility is required to support both EIA-232 (LSB-first) and SPI (MSB-first) formats.
+The XST core would be *smaller still* if this logic were removed.
 
 ## What Will Become of the IEEE-1355 Remex concept?
 

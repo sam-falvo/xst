@@ -76,6 +76,38 @@ The non-prototype versions of the XST and XSR cores
 are probably going to be given the name GSIA (General Serial Interface Adapter).
 The GSIA will likely also subsume the functionality of the KIA and KIA-2 cores as well.
 
+## How Does the Remex Port Pin-Out Change?
+
+Instead of:
+
+|Pin|Name|
+|:-:|:--:|
+|1  |TD  |
+|2  |TS  |
+|3  |RD  |
+|4  |RS  |
+
+We simply replace Spacewire's "strobe" signals with explicitly forwarded clocks:
+
+|Pin|Name|
+|:-:|:--:|
+|1  |TXD |
+|2  |TXC |
+|3  |RXD |
+|4  |RXC |
+
+The explicit clock forwarding allows for multi-megabit-per-second service.
+
+A real-world implementation of XST, such as the GSIA,
+must support reconfiguring the Pmod pinout according to attached peripheral:
+
+* Mode 2 pinout supports SPI slaves.
+* Modes 3, 4A, and 4B offer three different pinout variants for EIA-232 with hardware handshake.
+* Remex pinout ("Mode 7") supports higher-throughput peripherals suitable for, e.g., block storage devices.
+* SD card ("Mode 8") supports SD cards (not 100% compatible with Mode 2, unfortunately).
+
+These six different modes are **not** addressed by XST.
+
 ## Theory of Operation
 
 At its core is a 64-bit shift register called `TXREG`.

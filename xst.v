@@ -8,6 +8,7 @@ module xst(
 	input	[63:0]	dat_i,
 
 	input		txreg_we_i,
+	input		txreg_oe_i,
 	input	[15:0]	txbaud_i,
 	input	[5:0]	bits_i,
 
@@ -15,8 +16,8 @@ module xst(
 	output		txc_o,
 	output		idle_o,
 	output	[15:0]	brg_o,
-	output	[5:0]	bits_o
-	
+	output	[5:0]	bits_o,
+	output	[63:0]	dat_o
 );
 	reg	[5:0]	bits_o;
 	reg	[15:0]	brg_o;
@@ -28,6 +29,8 @@ module xst(
 
 	wire		txreg_shift = ~|brg_o;
 	wire	[15:1]	halfbit = txbaud_i[15:1];
+
+	assign		dat_o = (txreg_oe_i) ? shift_register : 0;
 
 	always @(posedge clk_i) begin
 		shift_register <= shift_register;

@@ -4,8 +4,9 @@ module xst_tb(
 );
 	reg	[15:0]	story;
 	reg		clk_i = 0, reset_i = 0;
-	reg		txreg_oe_i = 0, txreg_we_i = 0;
+	reg		txreg_oe_i = 0, txregr_oe_i = 0, txreg_we_i = 0, txregr_we_i = 0;
 	reg	[63:0]	dat_i;
+	reg	[5:0]	bits_i;
 
 	wire		txd_o, txc_o, idle_o;
 	wire	[15:0]	brg_o;
@@ -17,9 +18,11 @@ module xst_tb(
 		.rxd_i(txd_o),
 		.dat_i(dat_i),
 
-		.bits_i(6'd11),
+		.bits_i(bits_i),
 		.txreg_we_i(txreg_we_i),
-		.txreg_oe_i(1'b1),
+		.txreg_oe_i(txreg_oe_i),
+		.txregr_we_i(txregr_we_i),
+		.txregr_oe_i(txregr_oe_i),
 		.txbaud_i(16'h0004),
 		.txd_o(txd_o),
 		.txc_o(txc_o),
@@ -88,6 +91,7 @@ module xst_tb(
 
 		wait(clk_i);
 
+		bits_i <= 6'd11;
 		reset_i <= 1;
 		story <= 1;
 
@@ -124,6 +128,31 @@ module xst_tb(
 		test_bitcell(1);
 
 		story <= 2;
+		wait(~clk_i); wait(clk_i); #1
+		assert_idle(1);
+
+		dat_i <= 64'b10100101_00000000000000000000000000000000000000000000000000000000;
+		bits_i <= 6'd8;
+		txreg_oe_i <= 0;
+		txregr_oe_i <= 1;
+
+		txregr_we_i <= 1;
+		wait(~clk_i); wait(clk_i); #1 assert_txd(1); assert_idle(0); assert_brg(4);
+		txregr_we_i <= 0;
+		wait(~clk_i); wait(clk_i); #1 assert_txd(1); assert_idle(0); assert_brg(3);
+		wait(~clk_i); wait(clk_i); #1 assert_txd(1); assert_idle(0); assert_brg(2);
+		wait(~clk_i); wait(clk_i); #1 assert_txd(1); assert_idle(0); assert_brg(1);
+		wait(~clk_i); wait(clk_i); #1 assert_txd(1); assert_idle(0); assert_brg(0);
+
+		test_bitcell(0);
+		test_bitcell(1);
+		test_bitcell(0);
+		test_bitcell(0);
+		test_bitcell(1);
+		test_bitcell(0);
+		test_bitcell(1);
+
+		story <= 3;
 		wait(~clk_i); wait(clk_i); #1
 		assert_idle(1);
 

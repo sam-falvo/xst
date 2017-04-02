@@ -6,20 +6,23 @@ module xsr(
 	input	[63:0]	baud_i,
 	input		rxd_i,
 	input		rxc_i,
+	input		rxreg_oe_i,
+
+	output	[63:0]	dat_o,
 
 	output		idle_o,
-	output	[63:0]	sr_to,
 	output		sample_to
 );
 	reg	[63:0]	shiftRegister;
 	reg	[63:0]	sampleCtr;
 	reg	[5:0]	bitsLeft;
-	reg		d0, d1;
+	reg		d0, d1, c0, c1;
 
-	wire edgeDetected = d0 ^ d1;
+	wire edgeDetected = (d0 ^ d1) | (~c1 & c0);
 	wire sampleBit = ~idle_o && (sampleCtr == 0);
 
 	assign idle_o = (bitsLeft == 0);
+	assign dat_o = (rxreg_oe_i ? shiftRegister : 0);
 
 	always @(posedge clk_i) begin
 		shiftRegister <= shiftRegister;
@@ -27,11 +30,13 @@ module xsr(
 		sampleCtr <= sampleCtr;
 		d1 <= d0;
 		d0 <= rxd_i;
+		c1 <= c0;
+		c0 <= rxc_i;
 
 		if(reset_i) begin
 			shiftRegister <= ~(64'd0);
 			bitsLeft <= 0;
-			sampleCtr <= 0;
+			sampleCtr <= baud_i;
 			d0 <= 1;
 			d1 <= 1;
 		end
@@ -57,6 +62,5 @@ module xsr(
 		end
 	end
 
-	assign sr_to = shiftRegister;
 	assign sample_to = sampleBit;
 endmodule

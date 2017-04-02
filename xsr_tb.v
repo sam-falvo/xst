@@ -42,10 +42,10 @@ module xsr_tb();
 	task assert_sr;
 	input [63:0] expected;
 	begin
-//		if (expected !== sr_to) begin
-//			$display("@E %d sr_to Expected %d; got %d", story, expected, sr_to);
-//			$stop;
-//		end
+		if (expected !== sr_to) begin
+			$display("@E %d sr_to Expected %064B; got %064B", story, expected, sr_to);
+			$stop;
+		end
 	end
 	endtask
 
@@ -73,9 +73,22 @@ module xsr_tb();
 		rxd_i <= 0; #1000; assert_sr({8'b00001010, ~(56'h0)});
 		rxd_i <= 1; #1000; assert_sr({9'b100001010, ~(55'h0)});
 		rxd_i <= 0; #1000; assert_sr({10'b0100001010, ~(54'h0)});
-		rxd_i <= 1; #2500; assert_sr({11'b10100001010, ~(53'h0)});
+		rxd_i <= 1; #1000; assert_sr({11'b10100001010, ~(53'h0)});
 		rxd_i <= 0; #1000; assert_sr({12'b010100001010, ~(52'h0)});
-
+		rxd_i <= 1; #1000;
+		rxd_i <= 0; #1000;
+		rxd_i <= 1; #1000;
+		rxd_i <= 0; #1000;
+		rxd_i <= 0; #1000;
+		rxd_i <= 0; #1000;
+		rxd_i <= 0; #1000;
+		rxd_i <= 1; #1000;
+		rxd_i <= 0; #1000;
+		rxd_i <= 1; #1000;
+		rxd_i <= 1; #1000;
+		rxd_i <= 1; #1000;
+		rxd_i <= 1; #1000;
+		rxd_i <= 1; #1000;
 		$display("@I Done.");
 		$stop;
 	end

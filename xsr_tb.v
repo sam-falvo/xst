@@ -4,13 +4,16 @@ module xsr_tb();
 	reg	[15:0]	story;
 	reg		clk_i = 0, reset_i = 0;
 	reg		rxd_i = 1, rxc_i = 0;
+	reg		rxreg_oe_i = 0, rxregr_oe_i = 0;
 
 	wire		idle_o;
 	wire	[63:0]	dat_o;
 
 	wire		sample_to;
 
-	xsr x(
+	xsr #(
+		.SHIFT_REG_WIDTH(64)
+	) x(
 		.clk_i(clk_i),
 		.reset_i(reset_i),
 
@@ -18,7 +21,8 @@ module xsr_tb();
 		.baud_i(64'd49),		// 1Mbps when clocked at 50MHz.
 		.rxd_i(rxd_i),
 		.rxc_i(rxc_i),
-		.rxreg_oe_i(1'b1),
+		.rxreg_oe_i(rxreg_oe_i),
+		.rxregr_oe_i(rxregr_oe_i),
 
 		.idle_o(idle_o),
 		.dat_o(dat_o),
@@ -60,6 +64,8 @@ module xsr_tb();
 		wait(clk_i); wait(~clk_i);
 
 		reset_i <= 0;
+		rxreg_oe_i <= 1;
+		rxregr_oe_i <= 0; #1;
 
 		assert_idle(1);
 		assert_dat(64'hFFFFFFFFFFFFFFFF);
@@ -76,6 +82,11 @@ module xsr_tb();
 		rxd_i <= 0; #1000; assert_dat({10'b0100001010, ~(54'h0)});
 		rxd_i <= 1; #1000; assert_dat({11'b10100001010, ~(53'h0)});
 		rxd_i <= 0; #1000; assert_dat({12'b010100001010, ~(52'h0)});
+
+		rxreg_oe_i <= 0;
+		rxregr_oe_i <= 1;
+		#1 assert_dat({~(52'h0), 12'b010100001010});
+
 		rxd_i <= 1; #1000;
 		rxd_i <= 0; #1000;
 		rxd_i <= 1; #1000;
@@ -93,6 +104,8 @@ module xsr_tb();
 
 		story <= 2;
 		reset_i <= 1;
+		rxregr_oe_i <= 0;
+		rxreg_oe_i <= 1;
 		wait(clk_i); wait(~clk_i);
 		wait(clk_i); wait(~clk_i);
 		reset_i <= 0;
